@@ -18,7 +18,7 @@ export class App extends React.Component {
     modalImg: '',
     isLoad: true,
   };
-  componentDidMount() {
+  async componentDidMount() {
     this.renderGallery();
   }
   async componentDidUpdate() {
@@ -84,6 +84,11 @@ export class App extends React.Component {
         )}
 
         {this.state.images.length !== 0 ? <Button click={this.loadMore} /> : ''}
+        {this.state.images.length === 0 && (
+          <span style={{ textAlign: 'center', fontSize: '24px' }}>
+            No results
+          </span>
+        )}
         {this.state.isModalState === true ? (
           <Modal modalImg={this.state.modalImg} clsModal={this.clsModal} />
         ) : (
