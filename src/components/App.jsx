@@ -18,7 +18,7 @@ export class App extends React.Component {
     modalImg: '',
     isLoad: true,
   };
-  async componentDidMount() {
+  componentDidMount() {
     this.renderGallery();
   }
   async componentDidUpdate() {
