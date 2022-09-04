@@ -1,11 +1,20 @@
 import React from 'react';
 import styles from './ImageGalleryItem.module.css';
-
-const ImageGalleryItem = ({ imgArray }) => {
+import { nanoid } from 'nanoid';
+const ImageGalleryItem = ({ imgArray, showModal }) => {
   return imgArray.map(photoCard => {
     return (
-      <li className={styles.ImageGalleryItem}>
-        <img src={photoCard.previewURL} alt="" />
+      <li
+        key={nanoid()}
+        className={styles.ImageGalleryItem}
+        onClick={showModal}
+      >
+        <img
+          className={styles.ImageGalleryItemImage}
+          src={photoCard.webformatURL}
+          alt=""
+          data-source={photoCard.largeImageURL}
+        />
       </li>
     );
   });
