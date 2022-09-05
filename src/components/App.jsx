@@ -4,61 +4,70 @@ import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import Gallery from './ImageGallery/ImageGallery';
 import styles from './App.module.css';
 import Button from './Button/Button';
-import fetchImage from './Services/fetchImage';
+// import fetchImage from './Services/fetchImage';      Error GitHub
 import Modal from './Modal/Modal';
 import Loader from './Loader/Loader';
+import axios from 'axios';
 
 export class App extends React.Component {
   state = {
     query: '',
     page: 1,
     images: [],
-    helpState: 'whatever',
-    isModalState: false,
+    helpState: true,
     modalImg: '',
-    isLoad: true,
+    isLoad: false,
   };
+  fetchImage = async (query, page) => {
+    const baseUrl = 'https://pixabay.com/api';
+    try {
+      const response = await axios.get(
+        `${baseUrl}?key=28406091-8008b7c1afae3beb3d4e940a7&q=${query}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=12}`
+      );
+      return response.data;
+    } catch (error) {
+      console.log('Error: ' + error);
+    }
+  };
+
   componentDidMount() {
     this.renderGallery();
   }
-  async componentDidUpdate() {
-    this.renderGallery();
+  async componentDidUpdate(prevProps, prevState) {
+    if (
+      this.state.query !== prevState.query ||
+      this.state.page !== prevState.page
+    ) {
+      this.renderGallery();
+    }
   }
 
   async renderGallery() {
-    const response = await fetchImage(this.state.query, this.state.page);
+    const response = await this.fetchImage(this.state.query, this.state.page);
     this.falseLoad();
-    if (this.state.helpState === 'whatever') {
-      if (this.state.page === 1) {
-        this.setState({ images: response.hits });
-      }
-      if (this.state.page > 1) {
-        this.setState({ images: [...this.state.images, ...response.hits] });
-      }
+
+    if (this.state.page === 1) {
+      this.setState({ images: response.hits });
+    }
+    if (this.state.page > 1) {
+      this.setState({ images: [...this.state.images, ...response.hits] });
     }
   }
-  trueLoad = () => {
-    this.setState({ isLoad: true });
-  };
-  falseLoad = () => {
-    this.setState({ isLoad: false });
-  };
   handleSubmit = evt => {
     evt.preventDefault();
     const form = evt.currentTarget;
     const query = form.elements.query.value;
     this.setState({ query: query });
     this.setState({ page: 1 });
-    this.setState({ helpState: 'whatever' });
+
     form.reset();
     this.trueLoad();
   };
+
   loadMore = () => {
-    this.setState({ helpState: 'whatever' });
     this.setState({ page: this.state.page + 1 });
   };
   showModal = e => {
-    console.log(e.target.dataset.source);
     this.setState({ modalImg: e.target.dataset.source });
     this.setState({ isModalState: true });
   };
@@ -67,7 +76,12 @@ export class App extends React.Component {
       isModalState: false,
     });
   };
-
+  trueLoad = () => {
+    this.setState({ isLoad: true });
+  };
+  falseLoad = () => {
+    this.setState({ isLoad: false });
+  };
   render() {
     return (
       <div className={styles.App}>
@@ -83,11 +97,18 @@ export class App extends React.Component {
           </Gallery>
         )}
 
-        {this.state.images.length !== 0 ? <Button click={this.loadMore} /> : ''}
+        {this.state.images.length !== 0 && this.state.isLoad === false ? (
+          <Button click={this.loadMore} />
+        ) : (
+          ''
+        )}
         {this.state.images.length === 0 && (
-          <span style={{ textAlign: 'center', fontSize: '24px' }}>
-            No results
-          </span>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <img
+              src="https://webmarketingschool.com/wp-content/uploads/2018/03/nojobsfound.png"
+              alt=""
+            />
+          </div>
         )}
         {this.state.isModalState === true ? (
           <Modal modalImg={this.state.modalImg} clsModal={this.clsModal} />
